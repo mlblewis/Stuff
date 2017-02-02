@@ -1,0 +1,457 @@
+/*
+Michael Lewis
+Advanced Structures and Algorithms - Wei
+Homework 1
+20170202
+Purpose - To take a clinet file create a doubly linked list with a header and 
+footer sentinal node and have an const_iterator class and an Iterator class
+to track where in the list everthing is and to call function to insert at 
+the front or the back of the list or at any position in the list based off
+of the value of the iterator. Also theres a small node class...for the list
+*/
+#pragma once
+using namespace std;
+template <typename Object>
+/*
+Class: List
+Sub Classes: const_iterator, iterator, Node
+*/
+class List {
+private:
+	/*
+	Class: Node
+	data type: Object
+	*/
+	class Node
+	{
+	public:
+		Object data;
+		Node *prev;
+		Node *next;
+
+		Node(const Object & d = Object{}, Node *p = nullptr, Node *n = nullptr)
+			: data{ d }, prev{ p }, next{ n } {}
+
+		Node(Object && d, Node* p = nullptr, Node* n = nullptr)
+			: data{ move(d) }, prev{ p }, next{ n } {}
+		friend class List<Object>;
+	};
+
+	int theSize;
+	Node* head;
+	Node* tail;
+	/*
+	Function name: init
+	Recieves: void
+	purpose: to create the list object
+	*/
+	void init()
+	{
+		theSize = 0;
+		head = new Node;
+		tail = new Node;
+		head->next = tail;
+		tail->prev = head;
+	}
+public:
+	/*
+	Class: const_iterator
+	*/
+	class const_iterator
+	{
+	public:
+		const_iterator() : current{ nullptr }
+		{}
+		/*
+		Function Name: operator*
+		recieves Object
+		purpose: to overload the dereference operator*
+		*/
+		const Object & operator* () const
+		{
+			return retrieve();
+		}
+		/*
+		Function name Operator++
+		Recieves: iterator and operator++
+		Purpose: to overload the ++ operator for incriminting an iterator.
+		*/
+		const iterator & operator++()
+		{
+			current = current->next;
+			return *this;
+		}
+		/*
+		Function Name: operator++
+		Recieves: Intiger
+		Purpose: to overload the ++ operator for use with interator
+		*/
+		const_iterator operator++(int)
+		{
+			const_iterator old = *this;
+			++(*this);
+			return old;
+		}
+		/*
+		Function Name: operator++
+		Recieves: two Objects
+		Purpose: overloading the == operator to evaluate the equality
+		of the objects pointed to by two iterators
+		*/
+		bool operator== (const const_iterator & rhs) const
+		{
+			return current == rhs.current;
+		}
+		/*
+		Function Name: Operator!=
+		Recieves: two Objects
+		Purpose: Overloading the != operator to evaluate the inequality
+		of the objects pointed to by two iterators
+		*/
+		bool operator!= (const const_iterator & rhs) const
+		{
+			return !(*this == rhs);
+		}
+	protected:
+		Node *current;
+
+		Object & retrieve() const
+		{
+			return current->data;
+		}
+		const_iterator(Node *p) :current{ p }
+		{
+		}
+		friend class List<Object>;
+	};
+	/*
+	Class name: Iterator
+	inherits from: Const_iterator
+	Purpose: overload or mask some of the function from const_iterator
+	for use with the list class
+	*/
+	class iterator : public const_iterator
+	{
+	public:
+		iterator()
+		{}
+		/*
+		Function Name: Operator*
+		Recieves: Object
+		Purpose: Overloads the * operator for use with the node and list classes.
+		*/
+		Object & operator* ()
+		{
+			return const_iterator::retrieve();
+		}
+		/*
+		Function Name:Operator*
+		Recieves:Object
+		Purpose:Overloeads the * operator and does not tamper with the data stored
+		*/
+		const Object & operator*() const
+		{
+			return const_iterator::operator*();
+		}
+		/*
+		Function Name: Operator++
+		Recieves:iterator Object
+		Purpose:Overload the ++ operator for use with the iterator class
+		*/
+		iterator & operator++()
+		{
+			this->current = this->current->next;
+			return *this;
+		}
+		/*
+		Function Name:operator++
+		Recieves:intiger
+		Purpose:overloads the ++ operator for use with the iterator class
+		and a specified intiger.
+		*/
+		iterator operator++(int)
+		{
+			iterator old = *this;
+			++(*this);
+			return old;
+		}
+		/*
+		Function Name:operator--
+		Recieves:object
+		Purpose:overload the -- operator for use with iterator class.
+		*/
+		iterator & operator--()
+		{
+			this->current = this->current->prev;
+			return *this;
+		}
+		/*
+		Function Name:operator--
+		Recieves:object
+		Purpose:see above...
+		*/
+		iterator & operator--(int)
+		{
+			iterator old = *this;
+			--(*this);
+			return old;
+		}
+
+
+	protected:
+		iterator(Node *p) :const_iterator{ p }
+		{}
+		friend class List<Object>;
+	};
+	/*
+	Function Name: List
+	Recieves: 
+	Purpose: calls init to construct the list.
+	*/
+	List()
+	{
+		init();
+	}
+	/*
+	Function Name:~list
+	Recieves:
+	Purpose:calls clear to delete the list and the head and tail sentinal nodes
+	*/
+	~List()
+	{
+		clear();
+		delete head;
+		delete tail;
+	}
+	/*
+	Function Name:List
+	Recieves:two List objects
+	Purpose:to combined 2 list objects into 1.
+	*/
+	List(const List & rhs)
+	{
+		init();
+		for (auto & x : rhs)
+			push_back(x);
+	}
+	/*
+	Function Name:Operator=
+	Recieves:2 list objects
+	Purpose:overloads the assignment operator
+	*/
+	List & operator=(const List & rhs)
+	{
+		List copy = rhs;
+		swap(*this, copy);
+		return *this;
+	}
+	/*
+	Function Name:List
+	Recieves:
+	Purpose:honestly...i havn't the foggiest idea.
+	*/
+	List(List && rhs) : theSize{ theSize{rhs.theSize}, head{rhs.head}, tail{rhs.tail}}
+	{
+		rhs.theSize = 0;
+		rhs.head = nullptr;
+		rhs.tail = nullptr;
+	}
+	/*
+	Function Name:Operator=
+	Recieves:stuff
+	Purpose:overload the assignm,ent operator
+	*/
+	List & operator=(List && rhs)
+	{
+		swap(theSize, rhs.theSize);
+		swap(head, rhs.head);
+		swap(tail, rhs.tail);
+		return *this;
+	}
+	/*
+	Function Name:begin
+	Recieves:nada
+	Purpose:iterator for the begining of the list
+	*/
+	iterator begin()
+	{
+		return{ head->next };
+	}
+	/*
+	Function Name:end
+	Recieves:the rear end of all jokes
+	Purpose:an iterator to track the end of the list
+	*/
+	iterator end()
+	{
+		return{ tail };
+	}
+	/*
+	Function Name:Size
+	Recieves:
+	Purpose:tells the tale of how big the list is.
+	*/
+	int size() const
+	{
+		return theSize;
+	}
+	/*
+	Function Name:empty
+	Return Type: bool
+	Recieves:I wish I could tell you it recieved something...but it doesn't
+	Purpose:lets us know if the list is empty or not.
+	*/
+	bool empty() const
+	{
+		return size() == 0;
+	}
+	/*
+	Function Name:clear
+	Return Type:void
+	Recieves:null
+	Purpose:to shock people...not really, it removes values from list as long as
+	the list is not empty.
+	*/
+	void clear()
+	{
+		while (!empty())
+			pop_front();
+
+	}
+	/*
+	Function Name:front
+	Return Type:Object
+	Recieves:not applicable
+	Purpose:return the begining node
+	*/
+	Object & front()
+	{
+		return *begin();
+	}
+	/*
+	Function Name:back
+	Return Type:Object
+	Recieves:I plead the 5th
+	Purpose:returns the tail node.
+	*/
+	Object & back()
+	{
+		return *--end();
+	}
+	/*
+	Function Name:push_front
+	Return Type:void
+	Recieves:Object and value
+	Purpose:inserts node at front
+	*/
+	void push_front(const Object & x)
+	{
+		inster(begin(), x);
+	}
+	/*
+	Function Name:push front
+	Return Type:void
+	Recieves:object and value
+	Purpose:see above
+	*/
+	void push_front(Object && x)
+	{
+		insert(begin(), move(x));
+	}
+	/*
+	Function Name:push_back
+	Return Type:void
+	Recieves:object
+	Purpose:insert at end.
+	*/
+	void push_back(const Object & x)
+	{
+		insert(end(), x);
+	}
+	/*
+	Function Name:push_back
+	Return Type:void
+	Recieves:stuff
+	Purpose:insert at rear.
+	*/
+	void push_back(Object && x)
+	{
+		insert(end(), move(x));
+	}
+	/*
+	Function Name:pop_front
+	Return Type:void
+	Recieves:Salt
+	Purpose:remove the value pointed to by the head sentinal
+	*/
+	void pop_front()
+	{
+		erase(begin());
+	}
+	/*
+	Function Name:pop_back
+	Return Type:void
+	Recieves:n/a
+	Purpose:remove the value pointed to by the tail sentinal
+	*/
+	void pop_back()
+	{
+		erase(begin());
+	}
+	/*
+	Function Name:insert
+	Return Type:Object
+	Recieves:Object and value
+	Purpose:inserts object at value and updates pointers
+	*/
+	iterator insert(iterator itr, const Object & x)
+	{
+		Node* p = itr.current;
+		theSize++;
+		return{ p->prev = p->prev->next = new Node{ x, p -> prev,p } };
+	}
+	/*
+	Function Name:erase
+	Return Type:object
+	Recieves:iterator object
+	Purpose:remove a node at itr
+	*/
+	iterator erase(iterator itr)
+	{
+		Node* p = itr.current;
+		iterator retVal{ p->next };
+		p->prev->next = p->next;
+		p->next->prev = p->prev;
+		delete p;
+		theSize--;
+		return retVal;
+	}
+	/*
+	Function Name:erase 
+	Return Type:iterator
+	Recieves:iterator object
+	Purpose:Summons Arnold Swarzeneger to say,"you have been erased"
+	*/
+	iterator erase(iterator itr, Object && x)
+	{
+		Node* p = itr.current;
+		iterator retVal{ p->next };
+		p->prev->next = p->next;
+		p->next->prev = p->prev;
+		delete p;
+		theSize--;
+		return retVal;
+	}
+	/*
+	Function Name:Erase
+	Return Type:Object
+	Recieves:two Iterator Objects
+	Purpose:removes the nodes in the list between the from and to iterators.
+	*/
+	iterator erase(iterator from, iterator to)
+	{
+		for (iterator itr = from; itr != to;)
+			itr = erase(itr);
+		return to;
+	}
+};
