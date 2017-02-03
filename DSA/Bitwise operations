@@ -1,0 +1,44 @@
+#include<iostream>
+#include<fstream>
+#include<string>
+
+using namespace std;
+
+int main()
+{
+	ifstream infile;
+	ofstream outfile;
+	string word;
+	infile.open("on_off.dat");
+	outfile.open("Lewis_Michael_gateB.txt");
+	outfile << "Michael Lewis\n \n";
+	unsigned short flag = 0;
+	string flags[8] = {};
+	for (short i = 0; i < 10; i++)
+	{
+		for (short x = 0; x < 8; x++)
+			infile >> flags[x];
+		flag = 0;
+		short value = 128;
+		for (short y = 0; y < 8; y++)
+		{
+			if (flags[y] == "on")
+				//or flag with value to do a bitwise addition.
+				flag |= value;
+			//shift the value in value right by 1 bit.
+			value >>= 1;
+		}
+		outfile << "Gate #" << i + 1 << "FLAG is " << flag << ".\n";
+		//condition for first time through the loop to flip the left most bit.
+		if (i == 0)
+		{
+			outfile << "if the PHOTO BEAM bit is toggled, the flag would be ";
+		//XOR flag with 128 to flip the lead bit if it is 1 or make it 1 if 0
+			flag = flag ^ 128;
+			outfile << flag << ".\n";
+		}
+	}
+	outfile.close();
+	infile.close();
+	return 0;
+}
