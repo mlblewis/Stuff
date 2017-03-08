@@ -1,0 +1,67 @@
+/*
+Michael Lewis
+Advanced data structures and algorithms - Bing
+2017 - 03 - 07
+Purpose - To randomly pick a pivot point in a randomized quick sort function
+on a randomly assigned dynamic array of size 5000 coontaining elements with 
+values [-10000, 10000], then display the count of comparisons for the loop
+and display to screen the resulting number
+*/
+#include<iostream>
+#include<cstdlib>
+#include<time.h>
+#include<algorithm>
+#include<utility>
+
+using namespace std;
+
+int randomized_partition(int A[], int p, int r, int & count)
+{
+	int mid = rand() % (r - p);
+	int pivot = A[mid];
+	swap(A[mid], A[p]);
+	int i = p + 1;
+	int j = r;
+	while (i <= j) 
+	{
+		while (++count && i <= j && A[i] <= pivot) 
+			i++;
+		while (++count && i <= j && A[j] > pivot) 
+			j--;
+		if (++count && i < j) 
+			swap(A[i], A[j]);
+	}
+	swap(A[i - 1], A[p]);
+	return i - 1;
+}
+
+
+void randomized_quicksort(int A[], int p, int r,int & count) {
+	int q = randomized_partition(A, p, r, count);
+	if (p < q - 1)
+		randomized_quicksort(A, p, q - 1, count);
+	if (q + 1 < r)
+		randomized_quicksort(A, q + 1, r, count);
+}
+int count;
+int main()
+{
+	int count = 0;
+	srand(time(NULL));
+	int *A = new int[5000];
+	for (unsigned short i = 0; i < 10; i++)
+	{
+		for (int x = 0; x < 5000; x++)
+		{
+			A[x] = rand() % 20000 + -10000;
+		}
+		randomized_quicksort(A, 0, 4999, count);
+		cout << "Comparisons in run " << i+1 << " is " << count << endl;
+	count = 0;
+	}
+	delete[] A;
+	A = NULL;
+	system("pause");
+return 0;
+
+}
