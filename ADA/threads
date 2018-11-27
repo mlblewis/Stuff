@@ -1,0 +1,102 @@
+/*
+Michael Lewis
+Intro to Operating Systems
+November 13, 2018
+*/
+
+//includes
+#include<iostream>
+#include<ctime>
+#include<stdlib.h>
+#include<chrono>
+#include<thread>
+
+using namespace std;
+using namespace std::chrono;
+
+float matrixA[10000][10000];
+float matrixB[10000][10000];
+float matrixC[10000][10000];
+int promts[4];
+
+void initMatricies(float matrix[10000][10000]) {
+	srand(time(NULL));
+	for (int row = 0; row < 10000; row++) {
+		for (int col = 0; col < 10000; col++) {
+			matrix[row][col] = rand() / RAND_MAX;
+		}
+	}
+}
+
+void prompt(int promts[4]) {
+	cout << "please input a number for the row to be changed." << endl;
+	cin >> promts[0];
+	cout << "Please input a number for the column to be changed \n";
+	cin >> promts[1];
+	cout << "Please input a value to replace row " << promts[0] << " with. \n";
+	cin >> promts[2];
+	cout << "Please input a value to replace column " << promts[1] << " with. \n";
+	cin >> promts[3];
+}
+
+void matrixMult(float matrixA[10000][10000], float matrixB[10000][10000], float matrixC[10000][10000], int start, int stop) {
+	double sum1 = 0;
+	for (int col = start; col < stop; col++) {
+		for (int row = 0; row < 10000; row++) {
+			for (int mult = 0; mult<10000; mult++)
+				sum1 += matrixA[mult][col] * matrixB[row][mult];
+			matrixC[row][col] = sum1;
+			sum1 = 0;
+		}
+	}
+}
+
+int main() {
+	int rowNum = 0, colNum = 0, rowVal = 0, colVal = 0;
+	//thread A
+	thread A(initMatricies, matrixA);
+	//thread B
+	thread B(initMatricies, matrixB);
+	//thread C
+	thread C(prompt, promts);
+	rowNum = promts[0];
+	colNum = promts[1];
+	rowVal = promts[2];
+	colVal = promts[3];
+	//thread join
+	A.join();
+	B.join();
+	C.join();
+	for (int col = 0; col < 10000; col++)
+		matrixA[rowNum][col] = rowVal;
+	for (int row = 0; row < 10000; row++)
+		matrixB[row][colNum] = colVal;	
+	//timerstart
+	auto start = high_resolution_clock::now();
+	//matrix A x B
+	//thread1
+	thread one(matrixMult, matrixA, matrixB, matrixC, 0, 2500);
+	//thread2
+	thread two(matrixMult, matrixA, matrixB, matrixC, 2500, 5000);
+	//thread3
+	thread three(matrixMult, matrixA, matrixB, matrixC, 5000, 7500);
+	//thread4
+	thread four(matrixMult, matrixA, matrixB, matrixC, 7500, 10000);
+	//thread join
+	one.join();
+	two.join();
+	three.join();
+	four.join();
+	//timer end
+	auto end = high_resolution_clock::now();
+	auto duration = end - start;
+	cout << "The processing time for the array dot multiplication was " << chrono::duration <double, milli>(duration).count() << " ms /n";
+	for (int row = rowNum - 1; row < row + 2; row++) {
+		for (int col = colNum - 1; col < (col + 2); col++) {
+			cout << "[" << row << "][" << col << "] is " << matrixC[row][col] << endl;
+		}
+	}
+	system("pause");
+	return 0;
+}
+
