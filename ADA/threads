@@ -23,7 +23,7 @@ void initMatricies(float matrix[10000][10000]) {
 	srand(time(NULL));
 	for (int row = 0; row < 10000; row++) {
 		for (int col = 0; col < 10000; col++) {
-			matrix[row][col] = rand() / RAND_MAX;
+			matrix[row][col] = static_cast<float>(rand()) / RAND_MAX;
 		}
 	}
 }
@@ -43,8 +43,9 @@ void matrixMult(float matrixA[10000][10000], float matrixB[10000][10000], float 
 	double sum1 = 0;
 	for (int col = start; col < stop; col++) {
 		for (int row = 0; row < 10000; row++) {
-			for (int mult = 0; mult<10000; mult++)
+			for (int mult = 0; mult < 10000; mult++) {
 				sum1 += matrixA[mult][col] * matrixB[row][mult];
+			}
 			matrixC[row][col] = sum1;
 			sum1 = 0;
 		}
@@ -59,18 +60,18 @@ int main() {
 	thread B(initMatricies, matrixB);
 	//thread C
 	thread C(prompt, promts);
-	rowNum = promts[0];
-	colNum = promts[1];
-	rowVal = promts[2];
-	colVal = promts[3];
 	//thread join
 	A.join();
 	B.join();
 	C.join();
+	rowNum = promts[0];
+	colNum = promts[1];
+	rowVal = promts[2];
+	colVal = promts[3];
 	for (int col = 0; col < 10000; col++)
 		matrixA[rowNum][col] = rowVal;
 	for (int row = 0; row < 10000; row++)
-		matrixB[row][colNum] = colVal;	
+		matrixB[row][colNum] = colVal;
 	//timerstart
 	auto start = high_resolution_clock::now();
 	//matrix A x B
@@ -90,13 +91,12 @@ int main() {
 	//timer end
 	auto end = high_resolution_clock::now();
 	auto duration = end - start;
-	cout << "The processing time for the array dot multiplication was " << chrono::duration <double, milli>(duration).count() << " ms /n";
-	for (int row = rowNum - 1; row < row + 2; row++) {
-		for (int col = colNum - 1; col < (col + 2); col++) {
-			cout << "[" << row << "][" << col << "] is " << matrixC[row][col] << endl;
+	cout << "The processing time for the array dot multiplication was " << chrono::duration <double, milli>(duration).count() << " ms \n";
+	for (int x = rowNum - 2; x < rowNum + 1; x++) {
+		for (int y = colNum - 2; y < colNum + 1; y++) {
+			cout << "[" << x << "][" << y << "] is " << matrixC[x][y] << endl;
 		}
 	}
 	system("pause");
 	return 0;
 }
-
