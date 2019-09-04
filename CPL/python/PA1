@@ -1,0 +1,30 @@
+# Michael Lewis
+# CPL
+# Dr. Johnson
+# Purpose: To take a date multiply the day and month and compare it to the value
+# of the year, if equal it is a magic date, else it is not.
+ans = 'y'
+print("Michael Lewis")
+print("CPL")
+print("Dr. Johnson")
+print("Purpose: To take a date multiply the day and month and compare it to the value")
+print("of the year, if equal it is a magic date, else it is not \n \n")
+#loops until user does not wnat to continue anymore.
+while ans == 'y':
+    date = input("Please enter a date in the format of mm/dd/yy \n")
+    #since date was pulled in all at once using split to turn it into a list.
+    sDate = date.split('/')
+    #had to cast as int because of error when python tried to multiply strings
+    mult = int(sDate[0]) * int(sDate[1])
+    #again had to cast as int because of some error python had.
+    if int(sDate[0]) > 0 and int(sDate[0]) < 13:
+        if int(sDate[1]) > 0 and int(sDate[1]) < 32:
+            if mult == int(sDate[2]):
+                print("This is a magic date.")
+            else:
+                print("This is not a magic date.")
+        else:
+            print("There are at most 31 days in a month, please try again. 1 through 31")
+    else:
+        print("There are only 12 months please try again. 1 through 12")
+    ans = input("Continue? y/n    ")
