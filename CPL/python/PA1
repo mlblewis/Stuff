@@ -1,8 +1,10 @@
-# Michael Lewis
-# CPL
-# Dr. Johnson
-# Purpose: To take a date multiply the day and month and compare it to the value
-# of the year, if equal it is a magic date, else it is not.
+"""
+Michael Lewis
+CPL
+Dr. Johnson
+Purpose: To take a date multiply the day and month and compare it to the value
+of the year, if equal it is a magic date, else it is not.
+"""
 ans = 'y'
 print("Michael Lewis")
 print("CPL")
